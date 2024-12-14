@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compras-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: compras
+  template:
+    metadata:
+      labels:
+        app: compras
+    spec:
+      containers:
+        - name: compras
+          image: trijuank/servicio_melissa:v28 # Reemplazar con tu imagen Docker
+          ports:
+            - containerPort: 3000
+          env:
+            - name: POSTGRES_HOST
+              value: "compras-db"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "123456"
+            - name: POSTGRES_DB
+              value: "compras_db"
+            - name: POSTGRES_PORT
+              value: "5432"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: compras-service
+spec:
+  selector:
+    app: compras
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+      nodePort: 31896
+  type: NodePort  # Cambiado de ClusterIP a NodePort para exponer el servicio externamente
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compras-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: compras-db
+  template:
+    metadata:
+      labels:
+        app: compras-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "123456"
+            - name: POSTGRES_DB
+              value: "compras_db"
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: compras-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: compras-db
+spec:
+  selector:
+    app: compras-db
+  ports:
+    - protocol: TCP
+      port: 5432         # Exponer el puerto de la base de datos
+      targetPort: 5432
+      nodePort: 31751    # Asigna un puerto para acceso desde fuera del clúster
+  type: NodePort        # Cambiado de ClusterIP a NodePort para exponer el servicio externamente
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: compras-db-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

@@ -1,0 +1,128 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Microservicio de Compras",
+    "description": "Microservicio para gestionar compras"
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "schemes": ["http"],
+  "paths": {
+    "/compras": {
+      "get": {
+        "summary": "Obtener todas las compras",
+        "responses": {
+          "200": {
+            "description": "Lista de compras",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Compra"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear una nueva compra",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Compra"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Compra creada",
+            "schema": {
+              "$ref": "#/definitions/Compra"
+            }
+          },
+          "400": {
+            "description": "Error de validación"
+          }
+        }
+      }
+    },
+    "/compras/{id}": {
+      "put": {
+        "summary": "Actualizar una compra",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer",
+            "description": "ID de la compra"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Compra"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Compra actualizada",
+            "schema": {
+              "$ref": "#/definitions/Compra"
+            }
+          },
+          "404": {
+            "description": "Compra no encontrada"
+          },
+          "400": {
+            "description": "Error de validación"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar una compra",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer",
+            "description": "ID de la compra"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Compra eliminada"
+          },
+          "404": {
+            "description": "Compra no encontrada"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Compra": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "producto": {
+          "type": "string"
+        },
+        "cantidad": {
+          "type": "integer"
+        },
+        "precio": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
